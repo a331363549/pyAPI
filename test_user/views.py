@@ -49,7 +49,7 @@ def login(request):
         umobile = data['umobile']
         user = UserInfo.objects.filter(umobile=umobile)
         if len(user) == 1:
-            if data['password'] == user.password:
+            if data['password'] == user[0].password:
                 serializer = UserInfoSerializer(data=data)
                 if serializer.is_valid():
                     return JsonResponse(serializer.data, status=200, safe=False)
@@ -64,12 +64,14 @@ def update_info(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
         user = UserInfo.objects.get(umobile=data['umobile'])
-        if len(user) == 1:
-            instalce = UserInfoSerializer(data=data)
-            validated_data = UserInfoSerializer(user)
-            if instalce.is_valid():
-                instalce.update(instance=instalce,validated_data=validated_data)
-                return JsonResponse(instalce.data, status=200, safe=False)
+        validated_data = UserInfoSerializer(user)
+        instalce = UserInfoSerializer(validated_data.data,data=data)
+        if instalce.is_valid():
+            return JsonResponse(instalce.data, status=200, safe=False)
+        else:
+            return JsonResponse('error', status=400, safe=False)
+    else:
+        return JsonResponse('账号不存在', status=400, safe=False)
 
 
 '''查询用户列表'''
