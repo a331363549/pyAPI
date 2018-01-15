@@ -8,8 +8,8 @@ class UserInfoSerializer(serializers.Serializer):                # 它序列化�
     password = serializers.CharField(max_length=20)
     uname = serializers.CharField(max_length=18, default='')  # user name
     unickname = serializers.CharField(max_length=20, default='')  # user nick name
-    uage = serializers.IntegerField(default='')  # user age
-    usex = serializers.CharField(max_length=5,default='男')  # True male  False female
+    uage = serializers.IntegerField(default=0)  # user age
+    usex = serializers.CharField(max_length=5,default='1')  # True male  False female
    # uheadimg = serializers.ImageField('头像', null=True)  # user image
 
 

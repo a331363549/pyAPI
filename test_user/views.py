@@ -13,8 +13,9 @@ from test_user.serializers import UserInfoSerializer
 
 r = re.compile('^0\d{2,3}\d{7,8}$|^1[358]\d{9}$|^147\d{8}')
 
+
 def reparse():
-    stream = BytesIO(content)
+    # stream = BytesIO(content)
     data = JSONParser().parse(stream)
     serializer = UserInfoSerializer(data=data)
     serializer.is_valid()  # 开始验证
@@ -34,36 +35,41 @@ def create_user(request):
             return JsonResponse('输入正确的手机号', safe=False, status=400)
         if len(data['password']) < 6:
             return JsonResponse('密码长度不得小于6位', safe=False, status=400)
-        if data['password'] != data['pw2']:
-            return JsonResponse('两次输入的密码不一致', safe=False, status=400)
         else:
-            user = UserInfo(umobile=data['umobile'], password=data['password'])
-            #user.save()
-            serializer = UserInfoSerializer(user)
-            return JsonResponse('创建成功', serializer, status=201)
+            serializer = UserInfoSerializer(data=data)
+            if serializer.is_valid():
+                serializer.create(data)
+            return JsonResponse(serializer.data, status=201, safe=False)
 
 
 @csrf_exempt
 def login(request):
     if request.method == 'POST':
-        post = request.POST
-        umobile = post.get('umobile')
-        upwd = post.get('upwd')
-        users = UserInfo.objects.filter(umobile=umobile)
-        if len(users) == 1:
-            if upwd == users[0].password:
-                users
-                return JsonResponse('登录成功', status=201)
+        data = JSONParser().parse(request)
+        umobile = data['umobile']
+        user = UserInfo.objects.filter(umobile=umobile)
+        if len(user) == 1:
+            if data['password'] == user.password:
+                serializer = UserInfoSerializer(data=data)
+                if serializer.is_valid():
+                    return JsonResponse(serializer.data, status=200, safe=False)
             else:
-                return JsonResponse('密码错误', status=400)
+                return JsonResponse('密码错误', status=400, safe=False)
         else:
-            return JsonResponse('账号不存在', status=400)
+            return JsonResponse('账号不存在', status=400, safe=False)
 
 
 @csrf_exempt
 def update_info(request):
     if request.method == 'POST':
-        pass
+        data = JSONParser().parse(request)
+        user = UserInfo.objects.get(umobile=data['umobile'])
+        if len(user) == 1:
+            instalce = UserInfoSerializer(data=data)
+            validated_data = UserInfoSerializer(user)
+            if instalce.is_valid():
+                instalce.update(instance=instalce,validated_data=validated_data)
+                return JsonResponse(instalce.data, status=200, safe=False)
 
 
 '''查询用户列表'''
