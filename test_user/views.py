@@ -14,15 +14,6 @@ from test_user.serializers import UserInfoSerializer
 r = re.compile('^0\d{2,3}\d{7,8}$|^1[358]\d{9}$|^147\d{8}')
 
 
-def reparse():
-    # stream = BytesIO(content)
-    data = JSONParser().parse(stream)
-    serializer = UserInfoSerializer(data=data)
-    serializer.is_valid()  # 开始验证
-    # True
-    serializer.validated_data
-    serializer.save()
-
 
 @csrf_exempt
 def create_user(request):
@@ -63,11 +54,12 @@ def login(request):
 def update_info(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
-        user = UserInfo.objects.get(umobile=data['umobile'])
-        validated_data = UserInfoSerializer(user)
-        instalce = UserInfoSerializer(validated_data.data,data=data)
-        if instalce.is_valid():
-            return JsonResponse(instalce.data, status=200, safe=False)
+        umobile = data['umobile']
+        user = UserInfo.objects.get(umobile=umobile)
+        serializer = UserInfoSerializer(user, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data)
         else:
             return JsonResponse('error', status=400, safe=False)
     else:

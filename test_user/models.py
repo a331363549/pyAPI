@@ -19,6 +19,3 @@ class UserInfo(models.Model):
     #uheadimg = models.ImageField('头像', null=True, blank=True)  # user image
 
 
-    class Meta:
-        ordering = ('created',)
-
