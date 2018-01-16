@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 import re
 
 from django.http import HttpResponse, JsonResponse
@@ -14,11 +16,21 @@ from test_user.serializers import UserInfoSerializer
 r = re.compile('^0\d{2,3}\d{7,8}$|^1[358]\d{9}$|^147\d{8}')
 
 
+def reparse():
+    # stream = BytesIO(content)
+    data = JSONParser().parse(stream)
+    serializer = UserInfoSerializer(data=data)
+    serializer.is_valid()  # 开始验证
+    # True
+    serializer.validated_data
+    serializer.save()
+
 
 @csrf_exempt
 def create_user(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
+        print(data)
         user = UserInfo.objects.filter(umobile=data['umobile'])
         if len(user) == 1:
             return JsonResponse('用户已存在', safe=False, status=400)
@@ -37,8 +49,8 @@ def create_user(request):
 def login(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
-        umobile = data['umobile']
-        user = UserInfo.objects.filter(umobile=umobile)
+        print(data)
+        user = UserInfo.objects.filter(umobile=data['umobile'])
         if len(user) == 1:
             if data['password'] == user[0].password:
                 serializer = UserInfoSerializer(data=data)
@@ -54,12 +66,12 @@ def login(request):
 def update_info(request):
     if request.method == 'POST':
         data = JSONParser().parse(request)
-        umobile = data['umobile']
-        user = UserInfo.objects.get(umobile=umobile)
+        user = UserInfo.objects.get(umobile=data['umobile'])
         serializer = UserInfoSerializer(user, data=data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data)
+            p = JsonResponse(serializer.data, status=200)
+            return JsonResponse(serializer.data, status=200)
         else:
             return JsonResponse('error', status=400, safe=False)
     else:

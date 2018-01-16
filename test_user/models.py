@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from django.db import models
 from markdown import serializers
 from pygments.lexers import get_all_lexers         # 一个实现代码高亮的模块
@@ -15,7 +16,10 @@ class UserInfo(models.Model):
     uname = models.CharField('用户名', max_length=18, null=True, blank=True)  # user name
     unickname = models.CharField('昵称', max_length=20, null=True, blank=True)  # user nick name
     uage = models.IntegerField('年龄', null=True, blank=True)  # user age
-    usex = models.CharField('性别',max_length=5, default='1')  # True male  False female
+    usex = models.CharField('性别',max_length=5, default='男',)  # True male  False female
     #uheadimg = models.ImageField('头像', null=True, blank=True)  # user image
 
+
+    class Meta:
+        ordering = ('created',)
 
